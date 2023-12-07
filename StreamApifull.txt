@@ -1,0 +1,76 @@
+package com.example.StreamApi.Controller;
+
+import com.example.StreamApi.Model.Employee;
+import com.example.StreamApi.Model.Skill;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class EmpController {
+
+    static List<Employee> employeeList = Arrays.asList(
+            new Employee(101, "Riya", 1, "Active", 30000, Arrays.asList(new Skill("Java"), new Skill("jsp"))),
+            new Employee(102, "Vaishu", 1, "Inactive", 20000, Arrays.asList(new Skill("springboot"), new Skill("jsp"))),
+            new Employee(103, "Kartik", 2, "Active", 40000, Arrays.asList(new Skill("maven"), new Skill("sts"))),
+            new Employee(104, "Deenanath", 1, "Active", 30000, Arrays.asList(new Skill("eclipse"), new Skill("html"))),
+            new Employee(105, "Akshay", 2, "Active", 20000, Arrays.asList(new Skill("Java"), new Skill("css"))),
+            new Employee(106, "Ketan", 3, "Active", 35000, Arrays.asList(new Skill("Html"), new Skill("css"))),
+            new Employee(107, "Nehal", 3, "Active", 25000, Arrays.asList(new Skill("hibernate"), new Skill("jsp"))),
+            new Employee(108, "Priyanka", 4, "Inactive", 35000, Arrays.asList(new Skill("eclipse"), new Skill("Postgres"))),
+            new Employee(109, "Piyush", 4, "Active", 15000, Arrays.asList(new Skill("mysql"), new Skill("jsp"))),
+            new Employee(110, "Deep", 5, "Active", 30000, Arrays.asList(new Skill("springboot"), new Skill("sts")))
+    );
+
+    public static void main(String[] args) {
+        System.out.println("##Employee details working in each dept##");
+        Map<Long, List<Employee>> collect = employeeList.stream().collect(Collectors.groupingBy(Employee::getDeptCode, Collectors.toList()));
+        collect.entrySet().forEach(e -> System.out.println("The depno of " + e.getKey() + " have this much emp " + e.getValue()));
+
+        System.out.println("\n\n##employee unique skills of each deptno");
+        collect.entrySet().forEach(e-> e.getValue().stream().flatMap(e1-> e1.getSkill().stream().distinct()).distinct().
+                forEach(ski-> System.out.println("Department code is "+e.getKey()+" and unique skills is "+ski.getSkill())));
+
+
+
+
+        System.out.println("\n\n##Employee unique skills ");
+        Stream<Skill> distinct = employeeList.stream().flatMap(e -> e.getSkill().stream().distinct()).distinct();
+        distinct.forEach(e-> System.out.println(e));
+
+
+        System.out.println("\n\n##Employee count##");
+        Map<Long, Long> collect1 = employeeList.stream().collect(Collectors.groupingBy(Employee::getDeptCode, Collectors.counting()));
+        collect1.entrySet().forEach(e -> System.out.println("The depno of " + e.getKey() + " have count of emp " + e.getValue()));
+
+        System.out.println("\n\n##Active and Inactive employe##");
+        Map<String, List<Employee>> collect2 = employeeList.stream().collect(Collectors.groupingBy(Employee::getStatus, Collectors.toList()));
+        collect2.entrySet().forEach(e -> System.out.println("The status of " + e.getKey() + " have this much emp " + e.getValue()));
+
+        System.out.println("\n\n##max sal##");
+        Optional<Employee> max = employeeList.stream().max(Comparator.comparing(Employee::getSalary));
+        max.stream().forEach(e-> System.out.println("max sal of emp is "+ e));
+
+        System.out.println("\n\n##min sal##");
+        Optional<Employee> min = employeeList.stream().min(Comparator.comparing(Employee::getSalary));
+        min.stream().forEach(e-> System.out.println("min sal of emp is "+ e));
+
+        System.out.println("\n\n##max sal of each dept##");
+        Map<Long, List<Employee>> collect3 = employeeList.stream().collect(Collectors.groupingBy(Employee::getDeptCode, Collectors.toList()));
+        collect3.entrySet().forEach(e-> System.out.println("max sal "+e.getKey()+" of each dept "+e.getValue().stream().max(Comparator.comparing(Employee::getSalary))));
+
+
+
+        System.out.println("\n\n##filter for java##");
+        Map<Long, List<Employee>> collect4 = employeeList.stream().collect(Collectors.groupingBy(Employee::getDeptCode, Collectors.toList()));
+        collect4.entrySet().forEach(e-> e.getValue().stream().flatMap(e1-> e1.getSkill().stream().distinct().filter(w-> w.getSkill().toLowerCase().contains("java"))).distinct().
+                forEach(ski-> System.out.println("Department code is "+e.getKey()+" and unique skills is "+ski.getSkill()+ " have "+ e)));
+
+        System.out.println("\n\n##Sorting of list by name##");
+        Stream<Employee> sorted = employeeList.stream().sorted(Comparator.comparing(Employee::getEmpName));
+        sorted.forEach(e-> System.out.println(e));
+
+      //  collect4.entrySet().stream().sorted(Comparator.comparing(Employee::getEmpName).compare());
+
+    }
+}
